@@ -58,3 +58,5 @@ quit_button.grid(column=1, row=2)
 
 start_label = tk.Label(root, text="Автоматическая теплица", fg = "white", font=label_font)
 start_label.grid(row=0, column=0, columnspan=3)
+
+root.mainloop()
