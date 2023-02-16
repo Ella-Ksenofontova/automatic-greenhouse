@@ -21,7 +21,7 @@ button_font = "Calibri 16"
 settings_root = None
 emergency_mode = False
 watering_root = None
-
+image = tk.PhotoImage(file="greenhouse.gif", height=HEIGHT+1000, width=WIDTH+1000)
 
 current_temperatures = [[], [], [], []]
 temperatures_humidities_dates = [[], [], [], []]
@@ -131,56 +131,49 @@ def load_interface():
     start_label.grid_remove()
     quit_button.grid_remove()
 
-    image = tk.PhotoImage(file="greenhouse.gif")
-    background = tk.Label(root, image=image, height=HEIGHT, width=WIDTH)
-    background.grid(row=0, column=0, columnspan=6, rowspan=7, sticky=tk.N+tk.S+tk.W+tk.E)
+    background.grid(row=0, column=0, columnspan=6, rowspan=7)
+    background.create_image(0, 0, image=image, anchor=tk.N+tk.W)
 
     quit_button = tk.Button(root, text="Выход", command=root.destroy, height=5, width=30, font=button_font, bg="white")
-    quit_button.grid(row=6, column=4, columnspan=3)
+    background.create_window(WIDTH-500, 780, window=quit_button)
 
     settings = tk.Button(text="Настройки", height=5, width=30, font=button_font, bg="white", command=open_settings)
-    settings.grid(column=0, columnspan=3, row=6)
+    background.create_window(500, 780, window=settings)
 
-    watch_label = tk.Label(root, text="Просмотр", fg="white", font=label_font, bg="#008000")
-    watch_label.grid(row=0, column=0, columnspan=6)
+    background.create_text(WIDTH//2, 50, text="Просмотр", fill="white", font=label_font)
 
     temp_hum_sensors = tk.Button(text="Датчики температуры и влажности", height=5, width=30, font=button_font,
                                  bg="white", command=open_temperature_humidity_sensors)
-    temp_hum_sensors.grid(column=0, columnspan=2, row=1)
+    background.create_window(300, 180, window=temp_hum_sensors)
     soil_hum_sensors = tk.Button(text="Датчики влажности почвы", height=5, width=30, font=button_font, bg="white",
                                  command=open_soil_humidity_sensors)
-    soil_hum_sensors.grid(column=2, columnspan=2, row=1)
+    background.create_window(770, 180, window=soil_hum_sensors)
     average_temp_hum = tk.Button(text="Средняя влажность и температура", height=5, width=30, font=button_font,
                                  bg="white", command=open_average_humidity_and_temperature)
-    average_temp_hum.grid(column=4, columnspan=2, row=1)
+    background.create_window(1190, 180, window=average_temp_hum)
 
-    handle_label = tk.Label(root, text="Управление", fg="white", font=label_font, bg="#008000")
-    handle_label.grid(row=2, column=0, columnspan=6)
+    background.create_text(WIDTH//2, 280, text="Управление", fill="white", font=label_font)
 
     fork_opener = tk.Button(text="Открыть форточки", height=5, width=30, font=button_font, bg="white",
                             command=open_forks)
-    fork_opener.grid(column=0, columnspan=2, row=3)
+    background.create_window(300, 405, window=fork_opener)
     fork_closer = tk.Button(text="Закрыть форточки", height=5, width=30, font=button_font, bg="white",
                             command=close_forks)
-    fork_closer.grid(column=0, columnspan=2, row=4)
+    background.create_window(300, 580, window=fork_closer)
     watering_opener = tk.Button(text="Открыть/закрыть полив бороздок", height=5, width=30, font=button_font, bg="white",
                                 command=open_watering_interface)
-    watering_opener.grid(column=2, columnspan=2, row=3, rowspan=2, sticky=tk.N + tk.S)
+    background.create_window(770, 405, window=watering_opener)
     humidifier_opener = tk.Button(text="Открыть систему общего увлажнения", height=5, width=50,
                                   font=button_font, bg="white", command=open_humidifiing_system)
-    humidifier_opener.grid(column=4, columnspan=2, row=3)
+    background.create_window(1300, 405, window=humidifier_opener)
     humidifier_closer = tk.Button(text="Закрыть систему общего увлажнения", height=5, width=50,
                                   font=button_font, bg="white", command=close_humidifiing_system)
-    humidifier_closer.grid(column=4, columnspan=2, row=4)
+    background.create_window(1300, 580, window=humidifier_closer)
 
-    current_fork_state_label = tk.Label(root, text="Текущее состояние: закрыты", fg="white", font=small_label_font,
-                                        bg="#008000")
-    current_fork_state_label.grid(row=5, column=0, columnspan=2)
-
-    current_humidifier_state_label = tk.Label(root, text="Текущее состояние: закрыта", fg="white",
-                                              font=small_label_font, bg="#008000")
-    current_humidifier_state_label.grid(row=5, column=4, columnspan=2)
-
+    background.create_text(300, 680, text="Текущее состояние: закрыты", fill="white", font=small_label_font,
+                           tags="current_fork_state")
+    background.create_text(1300, 680, text="Текущее состояние: закрыта", fill="white", font=small_label_font,
+                           tags="current_hum_system_state")
 
 def show_error():
     error_root = tk.Tk()
@@ -318,19 +311,18 @@ def open_average_humidity_and_temperature():
 
 def open_forks():
     global min_average_temperature
-    label = root.winfo_children()[17]
     current_average_temperature = TempA()
     if current_average_temperature > float(min_average_temperature) or emergency_mode:
         OpenFort(1)
-        label.configure(text="Текущее состояние: открыты")
+        background.itemconfigure("current_fork_state", text="Текущее состояние: открыты")
     else:
         show_info_about_temperature()
 
 
 def close_forks():
-    label = root.winfo_children()[17]
+    background.itemconfigure("current_fork_state", text="Текущее состояние: закрыты")
     OpenFort(0)
-    label.configure(text="Текущее состояние: закрыты")
+
 
 
 def show_info_about_temperature():
@@ -348,11 +340,10 @@ def show_info_about_temperature():
 
 def open_humidifiing_system():
     global max_average_humidity
-    label = root.winfo_children()[18]
     current_average_humidity = HumidityA()
     if current_average_humidity < float(max_average_humidity) or emergency_mode:
+        background.itemconfigure("current_hum_system_state", text="Текущее состояние: открыта")
         totalHum(1)
-        label.configure(text="Текущее состояние: открыта")
     else:
         show_info_about_humidity()
 
@@ -371,9 +362,8 @@ def show_info_about_humidity():
 
 
 def close_humidifiing_system():
-    label = root.winfo_children()[18]
+    background.itemconfigure("current_hum_system_state", text="Текущее состояние: закрыта")
     totalHum(0)
-    label.configure(text="Текущее состояние: закрыта")
 
 
 def open_watering_interface():
@@ -556,6 +546,8 @@ def build_temperature_humidity_plot_1():
 
 frame = tk.Frame(root, width=WIDTH, height=HEIGHT, bg="#008000")
 frame.grid(column=0, row=0, columnspan=3, rowspan=3)
+
+background = tk.Canvas(root, height=HEIGHT, width=WIDTH)
 
 start_button = tk.Button(root, text="Начать", height=5, width=30, font=button_font, command=load_interface, bg="white")
 start_button.grid(column=1, row=1)
