@@ -3,6 +3,7 @@ from get_patch import TempFromTH, HumidityFromTH, Hd, TempA, HumidityA, OpenFort
 from pytz import timezone
 from datetime import datetime
 import matplotlib.pyplot as plt
+import matplotlib
 
 timezone_msc = timezone("Europe/Moscow")
 time_format = "%H:%M:%S"
@@ -12,51 +13,51 @@ min_average_temperature, max_average_humidity, max_humidity_in_notch = parameter
 parameters.close()
 
 root = tk.Tk()
-root.attributes("-fullscreen", True)
 WIDTH = root.winfo_screenwidth()
 HEIGHT = root.winfo_screenheight()
+root.geometry(f"{WIDTH}x{HEIGHT}")
+root.title("Автоматическая теплица")
 label_font = "Calibri 24 bold"
 small_label_font = "Calibri 14 bold"
 button_font = "Calibri 16"
 settings_root = None
+input_root = None
+soil_input_root = None
 emergency_mode = False
 watering_root = None
-image = tk.PhotoImage(file="greenhouse.gif", height=HEIGHT+1000, width=WIDTH+1000)
+image = tk.PhotoImage(file="greenhouse2.png", height=HEIGHT+500, width=WIDTH+500)
+image_for_tab = tk.PhotoImage(file="green.png", height=HEIGHT+500, width=WIDTH+500)
 
 current_temperatures = [[], [], [], []]
 temperatures_humidities_dates = [[], [], [], []]
 current_humidities = [[], [], [], []]
 current_soil_humidities = [[], [], [], [], [], []]
 soil_humidities_dates = [[], [], [], [], [], []]
+average_temperatures = []
+average_humidities = []
+average_dates = []
 
 
 def open_settings():
     global settings_root
-    settings_root = tk.Tk()
-    settings_root.attributes("-fullscreen", True)
-    settings_frame = tk.Frame(settings_root, height=HEIGHT, width=WIDTH, bg="#008000")
+    settings_root = tk.Toplevel()
+    settings_root.geometry(f"{WIDTH}x{HEIGHT}")
+    settings_root.title("Настройки")
+    settings_frame = tk.Frame(settings_root, height=HEIGHT, width=WIDTH)
     settings_frame.grid(row=0, column=0, rowspan=6, columnspan=2)
+
+    settings_background=tk.Canvas(settings_root, height=HEIGHT, width=WIDTH)
+    settings_background.grid(row=0, column=0, columnspan=2, rowspan=6)
+    settings_background.create_image(0,0, image=image_for_tab, anchor=tk.N + tk.W)
 
     settings_quit_button = tk.Button(settings_root, text="Назад", bg="white", height=5, width=30, font=button_font,
                                      command=settings_root.destroy)
     settings_quit_button.grid(row=5, column=1, sticky=tk.W)
 
-    settings_label = tk.Label(settings_root, text="Настройки", fg="white", font=label_font, bg="#008000")
-    settings_label.grid(row=0, column=0, columnspan=2)
-
-    temperature_label = tk.Label(settings_root, text="Минимальная "
-                                                     "температура, при которой возможно открытие форточек (°C)",
-                                 fg="white", font=small_label_font, bg="#008000")
-    humidity_label = tk.Label(settings_root, text="Максимальная "
-                                                  "влажность, при которой возможно открытие системы увлажнения (%)",
-                              fg="white", font=small_label_font, bg="#008000")
-    average_humidity_label = tk.Label(settings_root, text="Максимальная "
-                                                          "влажность в бороздке, при которой возможен её полив(%)",
-                                      fg="white", font=small_label_font, bg="#008000")
-    labels = [temperature_label, humidity_label, average_humidity_label]
-
-    for i in range(3):
-        labels[i].grid(row=i + 1, column=0, sticky=tk.E, padx=25)
+    settings_background.create_text(WIDTH//2,  HEIGHT//6 - 75, text="Настройки", fill="white", font=label_font, anchor=tk.S)
+    settings_background.create_text(WIDTH//2 - 100, HEIGHT//6 + HEIGHT//55, text="Минимальная температура, при которой возможно открытие форточек (°C)", fill="white", font=small_label_font, anchor=tk.E)
+    settings_background.create_text(WIDTH//2 - 100, HEIGHT//6 + HEIGHT//15, text="Максимальная влажность, при которой возможно открытие системы увлажнения (%)", fill="white", font=small_label_font, anchor=tk.E)
+    settings_background.create_text(WIDTH//2 - 100, HEIGHT//6 + HEIGHT//5, text="Максимальная влажность в бороздке, при которой возможен её полив(%)", fill="white", font=small_label_font, anchor=tk.E)
 
     temperature_entry = tk.Entry(settings_root, width=50)
     humidity_entry = tk.Entry(settings_root, width=50)
@@ -128,51 +129,50 @@ def load_interface():
     global quit_button
     frame.grid(rowspan=7, columnspan=6)
     start_button.grid_remove()
-    start_label.grid_remove()
     quit_button.grid_remove()
 
-    background.grid(row=0, column=0, columnspan=6, rowspan=7)
-    background.create_image(0, 0, image=image, anchor=tk.N+tk.W)
+    main_menu_background.delete("main_menu_image")
+    main_menu_background.create_image(0, 0, image=image, anchor=tk.N+tk.W)
 
     quit_button = tk.Button(root, text="Выход", command=root.destroy, height=5, width=30, font=button_font, bg="white")
-    background.create_window(WIDTH-500, 780, window=quit_button)
+    main_menu_background.create_window(WIDTH-500, 780, window=quit_button)
 
     settings = tk.Button(text="Настройки", height=5, width=30, font=button_font, bg="white", command=open_settings)
-    background.create_window(500, 780, window=settings)
+    main_menu_background.create_window(500, 780, window=settings)
 
-    background.create_text(WIDTH//2, 50, text="Просмотр", fill="white", font=label_font)
+    main_menu_background.create_text(WIDTH//2, 50, text="Просмотр", fill="white", font=label_font)
 
     temp_hum_sensors = tk.Button(text="Датчики температуры и влажности", height=5, width=30, font=button_font,
                                  bg="white", command=open_temperature_humidity_sensors)
-    background.create_window(300, 180, window=temp_hum_sensors)
+    main_menu_background.create_window(300, 180, window=temp_hum_sensors)
     soil_hum_sensors = tk.Button(text="Датчики влажности почвы", height=5, width=30, font=button_font, bg="white",
                                  command=open_soil_humidity_sensors)
-    background.create_window(770, 180, window=soil_hum_sensors)
+    main_menu_background.create_window(WIDTH//2, 180, window=soil_hum_sensors)
     average_temp_hum = tk.Button(text="Средняя влажность и температура", height=5, width=30, font=button_font,
                                  bg="white", command=open_average_humidity_and_temperature)
-    background.create_window(1190, 180, window=average_temp_hum)
+    main_menu_background.create_window(WIDTH-300, 180, window=average_temp_hum)
 
-    background.create_text(WIDTH//2, 280, text="Управление", fill="white", font=label_font)
+    main_menu_background.create_text(WIDTH//2, 280, text="Управление", fill="white", font=label_font)
 
     fork_opener = tk.Button(text="Открыть форточки", height=5, width=30, font=button_font, bg="white",
                             command=open_forks)
-    background.create_window(300, 405, window=fork_opener)
+    main_menu_background.create_window(300, 405, window=fork_opener)
     fork_closer = tk.Button(text="Закрыть форточки", height=5, width=30, font=button_font, bg="white",
                             command=close_forks)
-    background.create_window(300, 580, window=fork_closer)
+    main_menu_background.create_window(300, 580, window=fork_closer)
     watering_opener = tk.Button(text="Открыть/закрыть полив бороздок", height=5, width=30, font=button_font, bg="white",
                                 command=open_watering_interface)
-    background.create_window(770, 405, window=watering_opener)
+    main_menu_background.create_window(WIDTH//2, 405, window=watering_opener)
     humidifier_opener = tk.Button(text="Открыть систему общего увлажнения", height=5, width=50,
                                   font=button_font, bg="white", command=open_humidifiing_system)
-    background.create_window(1300, 405, window=humidifier_opener)
+    main_menu_background.create_window(WIDTH-300, 405, window=humidifier_opener)
     humidifier_closer = tk.Button(text="Закрыть систему общего увлажнения", height=5, width=50,
                                   font=button_font, bg="white", command=close_humidifiing_system)
-    background.create_window(1300, 580, window=humidifier_closer)
+    main_menu_background.create_window(WIDTH-300, 580, window=humidifier_closer)
 
-    background.create_text(300, 680, text="Текущее состояние: закрыты", fill="white", font=small_label_font,
+    main_menu_background.create_text(300, 680, text="Текущее состояние: закрыты", fill="white", font=small_label_font,
                            tags="current_fork_state")
-    background.create_text(1300, 680, text="Текущее состояние: закрыта", fill="white", font=small_label_font,
+    main_menu_background.create_text(WIDTH-300, 680, text="Текущее состояние: закрыта", fill="white", font=small_label_font,
                            tags="current_hum_system_state")
 
 def show_error():
@@ -183,7 +183,7 @@ def show_error():
     error_frame.grid(row=0, column=0, rowspan=2)
     error_label = tk.Label(error_root, text="Ошибка", font=label_font, fg="red", bg="white")
     error_label.grid(row=0, column=0, sticky=tk.W + tk.E + tk.S)
-    text_for_hint = "Введите числовые значения. Дробные числа вводите через точку."
+    text_for_hint = "Введите корректные числовые значения. Дробные числа вводите через точку."
     hint_label = tk.Label(error_root, text=text_for_hint, font=small_label_font, bg="white")
     hint_label.grid(row=1, column=0, sticky=tk.W + tk.E)
 
@@ -204,19 +204,21 @@ def show_success():
 def open_temperature_humidity_sensors():
     sensors_root = tk.Tk()
     sensors_root.title("Датчики температуры и влажности")
-    sensors_root.attributes("-fullscreen", True)
+    sensors_root.geometry(f"{WIDTH}x{HEIGHT}")
     sensors_frame = tk.Frame(sensors_root, height=HEIGHT, width=WIDTH, bg="#008000")
     sensors_frame.grid(row=0, column=0, rowspan=6, columnspan=5)
     sensors_label = tk.Label(sensors_root, text="Датчики температуры и влажности", fg="white", bg="#008000",
                              font=label_font)
     sensors_label.grid(row=0, column=0, columnspan=5)
 
+    commands = [build_temperature_humidity_plot_1, build_temperature_humidity_plot_2, build_temperature_humidity_plot_3, build_temperature_humidity_plot_4]
+
     for i in range(1, 5):
         label_with_number = tk.Label(sensors_root, text=str(i), bg="#008000", fg="white", font=label_font,
                                      highlightthickness=2, highlightbackground="white")
         label_with_number.grid(row=1, column=i, sticky=tk.E + tk.W + tk.N + tk.S)
 
-        button_with_plot = tk.Button(sensors_root, command=build_temperature_humidity_plot_1, text="Посмотреть графики",
+        button_with_plot = tk.Button(sensors_root, command=commands[i-1], text="Посмотреть графики",
                                      bg="white", font=button_font, height=1, width=18)
         button_with_plot.grid(row=4, column=i)
 
@@ -248,17 +250,22 @@ def open_temperature_humidity_sensors():
 
     sensors_quit_button = tk.Button(sensors_root, text="Назад", command=sensors_root.destroy, bg="white",
                                     font=button_font, height=1, width=7)
-    sensors_quit_button.grid(row=5, column=0, columnspan=5)
+    sensors_quit_button.grid(row=5, column=0, columnspan=2)
+
+    manual_input = tk.Button(sensors_root, text="Ввести данные вручную", bg="white", font=button_font, height=1, width=18, command=manual_temperature_humidity_input)
+    manual_input.grid(row=5, column=3, columnspan=2)
 
 
 def open_soil_humidity_sensors():
     humidity_root = tk.Tk()
     humidity_root.title("Датчики влажности почвы")
-    humidity_root.attributes("-fullscreen", True)
+    humidity_root.geometry(f"{WIDTH}x{HEIGHT}")
     humidity_frame = tk.Frame(humidity_root, height=HEIGHT, width=WIDTH, bg="#008000")
-    humidity_frame.grid(row=0, column=0, rowspan=4, columnspan=7)
+    humidity_frame.grid(row=0, column=0, rowspan=5, columnspan=7)
     humidity_label = tk.Label(humidity_root, text="Датчики влажности почвы", fg="white", bg="#008000", font=label_font)
     humidity_label.grid(row=0, column=0, columnspan=7)
+
+    commands = [build_soil_humidity_plot_1, build_soil_humidity_plot_2, build_soil_humidity_plot_3, build_soil_humidity_plot_4, build_soil_humidity_plot_5, build_soil_humidity_plot_6]
 
     for i in range(1, 7):
         label_with_number = tk.Label(humidity_root, text=str(i), bg="#008000", fg="white", font=label_font,
@@ -268,6 +275,12 @@ def open_soil_humidity_sensors():
         label_with_data = tk.Label(humidity_root, text=text, bg="#008000", fg="white", font=label_font,
                                    highlightthickness=2, highlightbackground="white")
         label_with_data.grid(row=2, column=i, sticky=tk.E + tk.W + tk.N + tk.S)
+        button_with_plot = tk.Button(humidity_root, text="Посмотреть графики", bg="white", font=button_font, height=1, width=18, command=commands[i-1])
+        button_with_plot.grid(row=3, column=i)
+        current_soil_humidities[i-1].append(text)
+        current_date = datetime.now(timezone_msc).strftime(time_format)
+        soil_humidities_dates[i - 1].append(current_date)
+
 
     number_label = tk.Label(humidity_root, text="Номер устройства", bg="#008000", fg="white", font=label_font,
                             highlightthickness=2, highlightbackground="white")
@@ -278,35 +291,47 @@ def open_soil_humidity_sensors():
 
     sensors_quit_button = tk.Button(humidity_root, text="Назад", command=humidity_root.destroy, bg="white",
                                     font=button_font, height=1, width=9)
-    sensors_quit_button.grid(row=3, column=0, columnspan=7)
+    sensors_quit_button.grid(row=4, column=0, columnspan=3)
+
+    manual_input = tk.Button(humidity_root, text="Ввести данные вручную", bg="white",
+                                    font=button_font, height=1, width=18, command=manual_soil_humidity_input)
+    manual_input.grid(row=4, column=4, columnspan=3)
 
 
 def open_average_humidity_and_temperature():
     average_parameters_root = tk.Tk()
     average_parameters_root.title("Средняя влажность и температура")
-    average_parameters_root.attributes("-fullscreen", True)
+    average_parameters_root.geometry(f"{WIDTH}x{HEIGHT}")
     average_parameters_frame = tk.Frame(average_parameters_root, height=HEIGHT, width=WIDTH, bg="#008000")
-    average_parameters_frame.grid(row=0, column=0, rowspan=4)
+    average_parameters_frame.grid(row=0, column=0, rowspan=4, columnspan=2)
 
     average_parameters_label = tk.Label(average_parameters_root, text="Средняя влажность и температура", fg="white",
                                         bg="#008000", font=label_font)
-    average_parameters_label.grid(row=0, column=0)
+    average_parameters_label.grid(row=0, column=0, columnspan=2)
 
     average_temperature = round(TempA(), 2)
     average_temperature_text = "Средняя температура: " + str(average_temperature)
     average_temperature_label = tk.Label(average_parameters_root, text=average_temperature_text, fg="white",
                                          bg="#008000", font=label_font)
-    average_temperature_label.grid(row=1, column=0)
+    average_temperature_label.grid(row=1, column=0, columnspan=2)
+    average_temperatures.append(average_temperature)
 
     average_humidity = round(HumidityA(), 2)
     average_humidity_text = "Средняя влажность: " + str(average_humidity)
     average_humidity_label = tk.Label(average_parameters_root, text=average_humidity_text, fg="white",
                                       bg="#008000", font=label_font)
-    average_humidity_label.grid(row=2, column=0)
+    average_humidity_label.grid(row=2, column=0, columnspan=2)
+    average_humidities.append(average_humidity)
+
+    current_date = datetime.now(timezone_msc).strftime(time_format)
+    average_dates.append(current_date)
 
     quit_button = tk.Button(average_parameters_root, text="Назад", bg="white", font=button_font, height=1, width=7,
                             command=average_parameters_root.destroy)
-    quit_button.grid(row=3, column=0)
+    quit_button.grid(row=3, column=0, sticky=tk.E, padx=20)
+
+    plot_button = tk.Button(average_parameters_root, text="Посмотреть графики", bg="white", font=button_font, height=1, width=15, command=build_average_parameters_plot)
+    plot_button.grid(row=3, column=1, sticky=tk.W, padx=20)
 
 
 def open_forks():
@@ -370,7 +395,7 @@ def open_watering_interface():
     global watering_root
     watering_root = tk.Tk()
     watering_root.title("Настройки системы полива")
-    watering_root.attributes("-fullscreen", True)
+    watering_root.geometry(f"{WIDTH}x{HEIGHT}")
     watering_frame = tk.Frame(watering_root, height=HEIGHT, width=WIDTH, bg="#008000")
     watering_frame.grid(row=0, column=0, rowspan=6, columnspan=6)
     watering_label = tk.Label(watering_root, text="Настройки системы полива", fg="white", bg="#008000", font=label_font)
@@ -526,36 +551,297 @@ def show_info_about_humidity_in_notch():
 
 def build_temperature_humidity_plot_1():
     if len(current_temperatures[0]) < 9:
-        temperatures_of_first_sensor = current_temperatures[0]
-        humidities_of_first_sensor = current_humidities[0]
-        dates_of_first_sensor = temperatures_humidities_dates[0]
+        temperatures_of_sensor = current_temperatures[0]
+        humidities_of_sensor = current_humidities[0]
+        dates_of_sensor = temperatures_humidities_dates[0]
     else:
         first_index = len(current_temperatures[0]) - 8
-        temperatures_of_first_sensor = current_temperatures[0][first_index:]
-        humidities_of_first_sensor = current_humidities[0][first_index:]
-        dates_of_first_sensor = temperatures_humidities_dates[0][first_index:]
+        temperatures_of_sensor = current_temperatures[0][first_index:]
+        humidities_of_sensor = current_humidities[0][first_index:]
+        dates_of_sensor = temperatures_humidities_dates[0][first_index:]
 
     fig, (ax1, ax2) = plt.subplots(1, 2, sharey=True, num="Графики температуры и влажности", figsize=(13, 75))
-    ax1.plot(dates_of_first_sensor, temperatures_of_first_sensor, linewidth=2)
-    ax2.plot(dates_of_first_sensor, humidities_of_first_sensor, linewidth=2)
-    mng = plt.get_current_fig_manager()
-    mng.window.state('zoomed')
+    ax1.plot(dates_of_sensor, temperatures_of_sensor, linewidth=2)
+    ax2.plot(dates_of_sensor, humidities_of_sensor, linewidth=2)
+
+    plt.show()
+
+def build_temperature_humidity_plot_2():
+    if len(current_temperatures[1]) < 9:
+        temperatures_of_sensor = current_temperatures[1]
+        humidities_of_sensor = current_humidities[1]
+        dates_of_sensor = temperatures_humidities_dates[1]
+    else:
+        first_index = len(current_temperatures[1]) - 8
+        temperatures_of_sensor = current_temperatures[1][first_index:]
+        humidities_of_sensor = current_humidities[1][first_index:]
+        dates_of_sensor = temperatures_humidities_dates[1][first_index:]
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, sharey=True, num="Графики температуры и влажности", figsize=(13, 75))
+    ax1.plot(dates_of_sensor, temperatures_of_sensor, linewidth=2)
+    ax2.plot(dates_of_sensor, humidities_of_sensor, linewidth=2)
+
+    plt.show()
+
+def build_temperature_humidity_plot_3():
+    if len(current_temperatures[2]) < 9:
+        temperatures_of_sensor = current_temperatures[2]
+        humidities_of_sensor = current_humidities[2]
+        dates_of_sensor = temperatures_humidities_dates[2]
+    else:
+        first_index = len(current_temperatures[2]) - 8
+        temperatures_of_sensor = current_temperatures[2][first_index:]
+        humidities_of_sensor = current_humidities[2][first_index:]
+        dates_of_sensor = temperatures_humidities_dates[2][first_index:]
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, sharey=True, num="Графики температуры и влажности", figsize=(13, 75))
+    ax1.plot(dates_of_sensor, temperatures_of_sensor, linewidth=2)
+    ax2.plot(dates_of_sensor, humidities_of_sensor, linewidth=2)
+
+    plt.show()
+
+def build_temperature_humidity_plot_4():
+    if len(current_temperatures[3]) < 9:
+        temperatures_of_sensor = current_temperatures[3]
+        humidities_of_sensor = current_humidities[3]
+        dates_of_sensor = temperatures_humidities_dates[3]
+    else:
+        first_index = len(current_temperatures[3]) - 8
+        temperatures_of_sensor = current_temperatures[3][first_index:]
+        humidities_of_sensor = current_humidities[3][first_index:]
+        dates_of_sensor = temperatures_humidities_dates[3][first_index:]
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, sharey=True, num="Графики температуры и влажности", figsize=(13, 75))
+    ax1.plot(dates_of_sensor, temperatures_of_sensor, linewidth=2)
+    ax2.plot(dates_of_sensor, humidities_of_sensor, linewidth=2)
 
     plt.show()
 
 
-frame = tk.Frame(root, width=WIDTH, height=HEIGHT, bg="#008000")
+def build_soil_humidity_plot_1():
+    if len(current_soil_humidities[0]) < 9:
+        humidities_of_sensor = current_soil_humidities[0]
+        dates_of_sensor = soil_humidities_dates[0]
+    else:
+        first_index=len(current_soil_humidities[0]) - 8
+        humiditries_of_sensor = current_soil_humidities[0][first_index:]
+        dates_of_sensor = soil_humidities_dates[0][first_index:]
+        
+    
+    fig, ax = plt.subplots(num="График влажности почвы", figsize=(13, 75))
+    ax.plot(dates_of_sensor, humidities_of_sensor, linewidth=2)
+    
+    plt.show()
+
+
+def build_soil_humidity_plot_2():
+    if len(current_soil_humidities[1]) < 9:
+        humidities_of_sensor = current_soil_humidities[1]
+        dates_of_sensor = soil_humidities_dates[1]
+    else:
+        first_index=len(current_soil_humidities[1]) - 8
+        humiditries_of_sensor = current_soil_humidities[1][first_index:]
+        dates_of_sensor = soil_humidities_dates[1][first_index:]
+        
+    
+    fig, ax = plt.subplots(num="График влажности почвы", figsize=(13, 75))
+    ax.plot(dates_of_sensor, humidities_of_sensor, linewidth=2)
+    
+    plt.show()
+
+
+def build_soil_humidity_plot_3():
+    if len(current_soil_humidities[2]) < 9:
+        humidities_of_sensor = current_soil_humidities[2]
+        dates_of_sensor = soil_humidities_dates[2]
+    else:
+        first_index=len(current_soil_humidities[2]) - 8
+        humiditries_of_sensor = current_soil_humidities[0][first_index:]
+        dates_of_sensor = soil_humidities_dates[2][first_index:]
+        
+    
+    fig, ax = plt.subplots(num="График влажности почвы", figsize=(13, 75))
+    ax.plot(dates_of_sensor, humidities_of_sensor, linewidth=2)
+    
+    plt.show()
+
+
+def build_soil_humidity_plot_4():
+    if len(current_soil_humidities[3]) < 9:
+        humidities_of_sensor = current_soil_humidities[3]
+        dates_of_sensor = soil_humidities_dates[3]
+    else:
+        first_index=len(current_soil_humidities[3]) - 8
+        humiditries_of_sensor = current_soil_humidities[3][first_index:]
+        dates_of_sensor = soil_humidities_dates[3][first_index:]
+        
+    
+    fig, ax = plt.subplots(num="График влажности почвы", figsize=(13, 75))
+    ax.plot(dates_of_sensor, humidities_of_sensor, linewidth=2)
+    
+    plt.show()
+
+
+def build_soil_humidity_plot_5():
+    if len(current_soil_humidities[4]) < 9:
+        humidities_of_sensor = current_soil_humidities[4]
+        dates_of_sensor = soil_humidities_dates[4]
+    else:
+        first_index=len(current_soil_humidities[4]) - 8
+        humiditries_of_sensor = current_soil_humidities[4][first_index:]
+        dates_of_sensor = soil_humidities_dates[4][first_index:]
+        
+    
+    fig, ax = plt.subplots(num="График влажности почвы", figsize=(13, 75))
+    ax.plot(dates_of_sensor, humidities_of_sensor, linewidth=2)
+    
+    plt.show()
+
+
+def build_soil_humidity_plot_6():
+    if len(current_soil_humidities[5]) < 9:
+        humidities_of_sensor = current_soil_humidities[5]
+        dates_of_sensor = soil_humidities_dates[5]
+    else:
+        first_index=len(current_soil_humidities[5]) - 8
+        humiditries_of_sensor = current_soil_humidities[5][first_index:]
+        dates_of_sensor = soil_humidities_dates[5][first_index:]
+        
+    
+    fig, ax = plt.subplots(num="График влажности почвы", figsize=(13, 75))
+    ax.plot(dates_of_sensor, humidities_of_sensor, linewidth=2)
+    
+    plt.show()
+
+
+def build_average_parameters_plot():
+    if len(average_temperatures) < 9:
+        temperatures = average_temperatures
+        humidities = average_humidities
+        dates = average_dates
+    else:
+        first_index = len(average_temperatures) - 8
+        temperatures = average_temperatures[first_index:]
+        humidities = average_humidities[first_index:]
+        dates = average_dates[first_index:]
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, sharey=True, num="Средняя температура и влажность", figsize=(13, 75))
+    ax1.plot(dates, temperatures, linewidth=2)
+    ax2.plot(dates, humidities, linewidth=2)
+
+    plt.show()
+
+
+def manual_temperature_humidity_input():
+    global soil_input_root
+    input_root = tk.Tk()
+    input_root.geometry(f"{WIDTH}x{HEIGHT}")
+    input_root.title("Ручной ввод данных")
+    input_frame = tk.Frame(input_root, height=HEIGHT, width=WIDTH, bg="#008000")
+    input_frame.grid(row=0, column=0, rowspan=5, columnspan=2)
+
+    input_label = tk.Label(input_root, text="Ручной ввод данных", bg="#008000", fg="white", font=label_font)
+    input_label.grid(row=0, column=0, columnspan=2)
+
+    number_label = tk.Label(input_root, text="Номер датчика (от 1 до 4):", bg="#008000", fg="white", font=small_label_font)
+    number_label.grid(row=1, column=0, sticky=tk.E, padx=50)
+    number_entry = tk.Entry(input_root, width=50)
+    number_entry.grid(row=1, column=1, sticky=tk.W)
+
+    temperature_label = tk.Label(input_root, text="Температура:", bg="#008000", fg="white", font=small_label_font)
+    temperature_label.grid(row=2, column=0, sticky=tk.E, padx=50)
+    temperature_entry = tk.Entry(input_root, width=50)
+    temperature_entry.grid(row=2, column=1, sticky=tk.W)
+
+    humidity_label = tk.Label(input_root, text="Влажность:", bg="#008000", fg="white", font=small_label_font)
+    humidity_label.grid(row=3, column=0, sticky=tk.E, padx=50)
+    humidity_entry = tk.Entry(input_root, width=50)
+    humidity_entry.grid(row=3, column=1, sticky=tk.W)
+
+    quit_button = tk.Button(input_root, text="Назад", bg="white", font=button_font, width=7, height=1, command=input_root.destroy)
+    quit_button.grid(row=4, column=0)
+
+    save_button = tk.Button(input_root, text="Сохранить", bg="white", font=button_font, width=7, height=1, command=save_manual_temperature_humidity)
+    save_button.grid(row=4, column=1)
+
+
+def save_manual_temperature_humidity():
+    children = input_root.winfo_children()
+    number = children[3].get()
+    temperature = children[5].get()
+    humidity = children[7].get()
+    try:
+        number = int(number)
+        temperature, humidity = map(float, [temperature, humidity])
+        current_temperatures[number-1].append(temperature)
+        current_humidities[number-1].append(humidity)
+        current_date =  datetime.now(timezone_msc).strftime(time_format)
+        temperatures_humidities_dates[number-1].append(current_date)
+        show_success()
+    except ValueError:
+        show_error()
+    except IndexError:
+        show_error()
+
+
+def manual_soil_humidity_input():
+    global soil_input_root
+    soil_input_root = tk.Tk()
+    soil_input_root.geometry(f"{WIDTH}x{HEIGHT}")
+    soil_input_root.title("Ручной ввод данных")
+    soil_input_frame = tk.Frame(soil_input_root, height=HEIGHT, width=WIDTH, bg="#008000")
+    soil_input_frame.grid(row=0, column=0, rowspan=4, columnspan=2)
+
+    soil_input_label = tk.Label(soil_input_root, text="Ручной ввод данных", bg="#008000", fg="white", font=label_font)
+    soil_input_label.grid(row=0, column=0, columnspan=2)
+
+    soil_number_label = tk.Label(soil_input_root, text="Номер датчика (от 1 до 6):", bg="#008000", fg="white", font=small_label_font)
+    soil_number_label.grid(row=1, column=0, sticky=tk.E, padx=50)
+    soil_number_entry = tk.Entry(soil_input_root, width=50)
+    soil_number_entry.grid(row=1, column=1, sticky=tk.W)
+
+
+    soil_humidity_label = tk.Label(soil_input_root, text="Влажность:", bg="#008000", fg="white", font=small_label_font)
+    soil_humidity_label.grid(row=2, column=0, sticky=tk.E, padx=50)
+    soil_humidity_entry = tk.Entry(soil_input_root, width=50)
+    soil_humidity_entry.grid(row=2, column=1, sticky=tk.W)
+
+    soil_quit_button = tk.Button(soil_input_root, text="Назад", bg="white", font=button_font, width=7, height=1, command=soil_input_root.destroy)
+    soil_quit_button.grid(row=3, column=0)
+
+    soil_save_button = tk.Button(soil_input_root, text="Сохранить", bg="white", font=button_font, width=7, height=1, command=save_manual_soil_humidity)
+    soil_save_button.grid(row=3, column=1)
+
+
+def save_manual_soil_humidity():
+    children = soil_input_root.winfo_children()
+    number = children[3].get()
+    humidity = children[5].get()
+    try:
+        number = int(number)
+        humidity = float(humidity)
+        current_soil_humidities[number-1].append(humidity)
+        current_date =  datetime.now(timezone_msc).strftime(time_format)
+        soil_humidities_dates[number-1].append(current_date)
+        show_success()
+    except ValueError:
+        show_error()
+    except IndexError:
+        show_error()
+
+frame = tk.Frame(root, width=WIDTH, height=HEIGHT)
 frame.grid(column=0, row=0, columnspan=3, rowspan=3)
 
-background = tk.Canvas(root, height=HEIGHT, width=WIDTH)
+main_menu_background = tk.Canvas(root, height=HEIGHT, width=WIDTH)
+main_menu_background.grid(row=0, column=0, columnspan=3, rowspan=3)
+main_menu_image = tk.PhotoImage(file="greenhouse.png", height=HEIGHT, width=WIDTH)
+main_menu_background.create_image(0, 0, image=main_menu_image, anchor=tk.N+tk.W)
+main_menu_background.create_text(WIDTH//2, HEIGHT//4, text="Автоматическая теплица", fill="white", font=label_font, tags="main_menu_image")
 
 start_button = tk.Button(root, text="Начать", height=5, width=30, font=button_font, command=load_interface, bg="white")
 start_button.grid(column=1, row=1)
 
 quit_button = tk.Button(root, text="Выход", command=root.destroy, height=5, width=30, font=button_font, bg="white")
 quit_button.grid(column=1, row=2)
-
-start_label = tk.Label(root, text="Автоматическая теплица", fg="white", font=label_font, bg="#008000")
-start_label.grid(row=0, column=0, columnspan=3)
 
 root.mainloop()
