@@ -20,7 +20,6 @@ soil_input_root = None
 emergency_mode = False
 watering_root = None
 image = tk.PhotoImage(file="greenhouse2.png", height=HEIGHT + 500, width=WIDTH + 500)
-image_for_tab = tk.PhotoImage(file="green.png", height=HEIGHT + 500, width=WIDTH + 500)
 
 current_temperatures = [[], [], [], []]
 temperature_humidities_queries = [[], [], [], []]
