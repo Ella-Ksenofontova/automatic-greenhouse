@@ -584,7 +584,7 @@ def build_temperature_humidity_plot_1():
         first_index = len(current_temperatures[0]) - 8
         temperatures_of_sensor = current_temperatures[0][first_index:]
         humidities_of_sensor = current_humidities[0][first_index:]
-        dates_of_sensor = temperature_humidities_queries[0][first_index:]
+        dates_of_sensor = [1, 2, 3, 4, 5, 6, 7, 8]
 
     fig, (ax1, ax2) = plt.subplots(1, 2, sharey=False, num="Графики температуры и влажности", figsize=(13, 75))
     ax1.plot(dates_of_sensor, temperatures_of_sensor, linewidth=2, marker="o", markersize=5)
@@ -593,8 +593,8 @@ def build_temperature_humidity_plot_1():
     ax1.set_xlabel("Номер запроса")
     ax2.set_ylabel("Влажность, %")
     ax2.set_xlabel("Номер запроса")
-    ax1.set_xticks(temperature_humidities_queries[0])
-    ax2.set_xticks(temperature_humidities_queries[0])
+    ax1.set_xticks(dates_of_sensor)
+    ax2.set_xticks(dates_of_sensor)
 
     plt.suptitle("Слева - график температуры, справа - график влажности", horizontalalignment="center")
 
@@ -610,7 +610,7 @@ def build_temperature_humidity_plot_2():
         first_index = len(current_temperatures[1]) - 8
         temperatures_of_sensor = current_temperatures[1][first_index:]
         humidities_of_sensor = current_humidities[1][first_index:]
-        dates_of_sensor = temperature_humidities_queries[1][first_index:]
+        dates_of_sensor = [1, 2, 3, 4, 5, 6, 7, 8]
 
     fig, (ax1, ax2) = plt.subplots(1, 2, sharey=False, num="Графики температуры и влажности", figsize=(13, 75))
     ax1.plot(dates_of_sensor, temperatures_of_sensor, linewidth=2, marker="o", markersize=5)
@@ -619,8 +619,8 @@ def build_temperature_humidity_plot_2():
     ax1.set_xlabel("Номер запроса")
     ax2.set_ylabel("Влажность, %")
     ax2.set_xlabel("Номер запроса")
-    ax1.set_xticks(temperature_humidities_queries[1])
-    ax2.set_xticks(temperature_humidities_queries[1])
+    ax1.set_xticks(dates_of_sensor)
+    ax2.set_xticks(dates_of_sensor)
 
     plt.suptitle("Слева - график температуры, справа - график влажности", horizontalalignment="center")
 
@@ -636,8 +636,8 @@ def build_temperature_humidity_plot_3():
         first_index = len(current_temperatures[2]) - 8
         temperatures_of_sensor = current_temperatures[2][first_index:]
         humidities_of_sensor = current_humidities[2][first_index:]
-        dates_of_sensor = temperature_humidities_queries[2][first_index:]
-
+        dates_of_sensor = [1, 2, 3, 4, 5, 6, 7, 8]
+        
     fig, (ax1, ax2) = plt.subplots(1, 2, sharey=False, num="Графики температуры и влажности", figsize=(13, 75))
     ax1.plot(dates_of_sensor, temperatures_of_sensor, linewidth=2, marker="o", markersize=5)
     ax2.plot(dates_of_sensor, humidities_of_sensor, linewidth=2, marker="o", markersize=5)
@@ -645,8 +645,9 @@ def build_temperature_humidity_plot_3():
     ax1.set_xlabel("Номер запроса")
     ax2.set_ylabel("Влажность, %")
     ax2.set_xlabel("Номер запроса")
-    ax1.set_xticks(temperature_humidities_queries[2])
-    ax2.set_xticks(temperature_humidities_queries[2])
+    ax1.set_xticks(dates_of_sensor)
+    ax2.set_xticks(dates_of_sensor)
+    
     plt.suptitle("Слева - график температуры, справа - график влажности", horizontalalignment="center")
 
     plt.show()
@@ -661,7 +662,7 @@ def build_temperature_humidity_plot_4():
         first_index = len(current_temperatures[3]) - 8
         temperatures_of_sensor = current_temperatures[3][first_index:]
         humidities_of_sensor = current_humidities[3][first_index:]
-        dates_of_sensor = temperature_humidities_queries[3][first_index:]
+        dates_of_sensor = [1, 2, 3, 4, 5, 6, 7, 8]
 
     fig, (ax1, ax2) = plt.subplots(1, 2, sharey=False, num="Графики температуры и влажности", figsize=(13, 75))
     ax1.plot(dates_of_sensor, temperatures_of_sensor, linewidth=2, marker="o", markersize=5)
@@ -670,8 +671,8 @@ def build_temperature_humidity_plot_4():
     ax1.set_xlabel("Номер запроса")
     ax2.set_ylabel("Влажность, %")
     ax2.set_xlabel("Номер запроса")
-    ax1.set_xticks(temperature_humidities_queries[3])
-    ax2.set_xticks(temperature_humidities_queries[3])
+    ax1.set_xticks(dates_of_sensor)
+    ax2.set_xticks(dates_of_sensor)
 
     plt.suptitle("Слева - график температуры, справа - график влажности", horizontalalignment="center")
 
@@ -685,13 +686,13 @@ def build_soil_humidity_plot_1():
     else:
         first_index = len(current_soil_humidities[0]) - 8
         humidities_of_sensor = current_soil_humidities[0][first_index:]
-        dates_of_sensor = soil_humidities_queries[0][first_index:]
+        dates_of_sensor = [1, 2, 3, 4, 5, 6, 7, 8]
 
     fig, ax = plt.subplots(num="График влажности почвы", figsize=(13, 75))
     ax.plot(dates_of_sensor, humidities_of_sensor, linewidth=2, marker="o", markersize=5)
     ax.set_xlabel("Номер запроса")
     ax.set_ylabel("Влажность почвы, %")
-    ax.set_xticks(soil_humidities_queries[0])
+    ax.set_xticks(dates_of_sensor)
 
     plt.show()
 
@@ -703,13 +704,13 @@ def build_soil_humidity_plot_2():
     else:
         first_index = len(current_soil_humidities[1]) - 8
         humidities_of_sensor = current_soil_humidities[1][first_index:]
-        dates_of_sensor = soil_humidities_queries[1][first_index:]
+        dates_of_sensor = [1, 2, 3, 4, 5, 6, 7, 8]
 
     fig, ax = plt.subplots(num="График влажности почвы", figsize=(13, 75))
     ax.plot(dates_of_sensor, humidities_of_sensor, linewidth=2, marker="o", markersize=5)
     ax.set_xlabel("Номер запроса")
     ax.set_ylabel("Влажность почвы, %")
-    ax.set_xticks(soil_humidities_queries[1])
+    ax.set_xticks(dates_of_sensor)
 
     plt.show()
 
@@ -721,13 +722,13 @@ def build_soil_humidity_plot_3():
     else:
         first_index = len(current_soil_humidities[2]) - 8
         humidities_of_sensor = current_soil_humidities[0][first_index:]
-        dates_of_sensor = soil_humidities_queries[2][first_index:]
+        dates_of_sensor = [1, 2, 3, 4, 5, 6, 7, 8]
 
     fig, ax = plt.subplots(num="График влажности почвы", figsize=(13, 75))
     ax.plot(dates_of_sensor, humidities_of_sensor, linewidth=2, marker="o", markersize=5)
     ax.set_xlabel("Номер запроса")
     ax.set_ylabel("Влажность почвы, %")
-    ax.set_xticks(soil_humidities_queries[2])
+    ax.set_xticks(dates_of_sensor)
 
     plt.show()
 
@@ -739,13 +740,13 @@ def build_soil_humidity_plot_4():
     else:
         first_index = len(current_soil_humidities[3]) - 8
         humidities_of_sensor = current_soil_humidities[3][first_index:]
-        dates_of_sensor = soil_humidities_queries[3][first_index:]
+        dates_of_sensor = [1, 2, 3, 4, 5, 6, 7, 8]
 
     fig, ax = plt.subplots(num="График влажности почвы", figsize=(13, 75))
     ax.plot(dates_of_sensor, humidities_of_sensor, linewidth=2, marker="o", markersize=5)
     ax.set_xlabel("Номер запроса")
     ax.set_ylabel("Влажность почвы, %")
-    ax.set_xticks(soil_humidities_queries[3])
+    ax.set_xticks(dates_of_sensor)
 
     plt.show()
 
@@ -757,13 +758,13 @@ def build_soil_humidity_plot_5():
     else:
         first_index = len(current_soil_humidities[4]) - 8
         humidities_of_sensor = current_soil_humidities[4][first_index:]
-        dates_of_sensor = soil_humidities_queries[4][first_index:]
+        dates_of_sensor = [1, 2, 3, 4, 5, 6, 7, 8]
 
     fig, ax = plt.subplots(num="График влажности почвы", figsize=(13, 75))
     ax.plot(dates_of_sensor, humidities_of_sensor, linewidth=2, marker="o", markersize=5)
     ax.set_xlabel("Номер запроса")
     ax.set_ylabel("Влажность почвы, %")
-    ax.set_xticks(soil_humidities_queries[4])
+    ax.set_xticks(dates_of_sensor)
 
     plt.show()
 
@@ -775,13 +776,13 @@ def build_soil_humidity_plot_6():
     else:
         first_index = len(current_soil_humidities[5]) - 8
         humidities_of_sensor = current_soil_humidities[5][first_index:]
-        dates_of_sensor = soil_humidities_queries[5][first_index:]
+        dates_of_sensor = [1, 2, 3, 4, 5, 6, 7, 8]
 
     fig, ax = plt.subplots(num="График влажности почвы", figsize=(13, 75))
     ax.plot(dates_of_sensor, humidities_of_sensor, linewidth=2, marker="o", markersize=5)
     ax.set_xlabel("Номер запроса")
     ax.set_ylabel("Влажность почвы, %")
-    ax.set_xticks(soil_humidities_queries[4])
+    ax.set_xticks(dates_of_sensor)
 
     plt.show()
 
@@ -795,7 +796,7 @@ def build_average_parameters_plot():
         first_index = len(average_temperatures) - 8
         temperatures = average_temperatures[first_index:]
         humidities = average_humidities[first_index:]
-        dates = average_queries[first_index:]
+        dates = [1, 2, 3, 4, 5, 6, 7, 8]
 
     fig, (ax1, ax2) = plt.subplots(1, 2, sharey=False, num="Средняя температура и влажность", figsize=(13, 75))
     ax1.plot(dates, temperatures, linewidth=2, marker="o", markersize=5)
@@ -804,8 +805,8 @@ def build_average_parameters_plot():
     ax1.set_ylabel("Температура, °С")
     ax2.set_xlabel("Номер запроса")
     ax2.set_ylabel("Влажность, %")
-    ax1.set_xticks(average_queries)
-    ax2.set_xticks(average_queries)
+    ax1.set_xticks(dates)
+    ax2.set_xticks(dates)
 
     plt.suptitle("Слева - график средней температуры, справа - график средней влажности", horizontalalignment="center")
 
@@ -943,3 +944,4 @@ quit_button = tk.Button(root, text="Выход", command=root.destroy, height=5,
 quit_button.grid(column=1, row=2)
 
 root.mainloop()
+
